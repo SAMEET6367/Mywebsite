@@ -1,0 +1,10 @@
+Drop your headshot here as: profile.jpg
+
+Recommended:
+- Square image, at least 400x400px (it renders as a small circle, so a
+  simple, well-lit headshot works better than a busy background)
+- JPG or PNG — if you use PNG, rename the file to profile.png and update
+  the `src` path in components/Hero.tsx to match
+
+Until this file exists, the hero shows a gradient "SA" initials badge
+instead — nothing will break either way.
