@@ -1,44 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Container, PrimaryButton, SecondaryButton } from "@/components/ui/Primitives";
-import { BrowserBuild } from "@/components/BrowserBuild";
 import { Reveal } from "@/components/ui/Reveal";
 
 export function Hero() {
+  const [imgError, setImgError] = useState(false);
+
   return (
-    <section id="top" className="relative overflow-hidden pb-20 pt-16 sm:pt-24">
+    <section id="top" className="relative overflow-hidden pb-0 pt-16 sm:pt-24 lg:pb-0">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-hero-glow" />
-      <Container className="grid items-center gap-16 lg:grid-cols-[1.1fr_1fr]">
-        <div className="animate-fade-up">
-          <div className="mb-8 flex items-center gap-3">
-            {/*
-              Photo: drop a square headshot at /public/images/profile.jpg
-              (min. 200x200px) and it will render here automatically. Until
-              that file exists, this falls back to an initials badge instead
-              of a broken image icon.
-            */}
-            <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-violet to-cyan">
-              <Image
-                src="/images/profile.jpg"
-                alt="Sameet Ahmed"
-                fill
-                sizes="40px"
-                className="object-cover"
-                onError={(e) => {
-                  // No photo uploaded yet — hide the broken image and let
-                  // the gradient + initials fallback show through.
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
-              />
-              <span className="absolute inset-0 flex items-center justify-center font-display text-sm font-semibold text-ink-950">
-                SA
-              </span>
-            </div>
-            <p className="text-sm text-fog">
-              Sameet Ahmed · Software Engineer &amp; Web Developer
-            </p>
-          </div>
+      <Container className="grid items-center gap-16 pb-20 lg:grid-cols-[1.1fr_1fr] lg:items-end lg:pb-0">
+        <div className="animate-fade-up pb-0 lg:pb-20">
+          <p className="mb-4 text-sm text-fog">
+            Sameet Ahmed · Software Engineer &amp; Web Developer
+          </p>
 
           <h1 className="text-balance font-display text-4xl font-semibold leading-[1.1] text-paper sm:text-5xl lg:text-6xl">
             I build websites that make businesses look as good as they really are.
@@ -65,8 +42,36 @@ export function Hero() {
           </div>
         </div>
 
+        {/*
+          Cutout photo: remove the background from a headshot/half-body
+          photo (remove.bg, Photoroom, or Photoshop all work) and export a
+          transparent PNG to /public/images/profile-cutout.png. Portrait
+          orientation, subject filling the frame top-to-bottom, works best —
+          it bleeds off the bottom edge of this section the same way the
+          reference image does. Until that file exists, this shows a dashed
+          placeholder instead of a broken image icon.
+        */}
         <Reveal delay={150}>
-          <BrowserBuild />
+          <div className="relative mx-auto -mb-1 h-[360px] w-full max-w-sm sm:h-[440px] lg:mx-0 lg:h-[600px] lg:max-w-none">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 -z-10 rounded-[3rem] bg-hero-glow blur-3xl" />
+            {!imgError ? (
+              <Image
+                src="/images/profile-cutout.png"
+                alt="Sameet Ahmed"
+                fill
+                sizes="(min-width: 1024px) 520px, 384px"
+                className="object-contain object-bottom"
+                onError={() => setImgError(true)}
+                priority
+              />
+            ) : (
+              <div className="flex h-full items-end justify-center rounded-2xl border border-dashed border-ink-700 bg-ink-900/40 pb-10 text-center text-sm text-fog">
+                Drop a background-removed photo at
+                <br />
+                /public/images/profile-cutout.png
+              </div>
+            )}
+          </div>
         </Reveal>
       </Container>
     </section>

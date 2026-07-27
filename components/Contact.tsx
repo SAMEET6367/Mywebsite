@@ -5,7 +5,7 @@ import { Container, SectionHeading } from "@/components/ui/Primitives";
 import { Reveal } from "@/components/ui/Reveal";
 
 // Placeholders — replace with your real contact details.
-const EMAIL = "hello@sameetahmed.dev";
+const EMAIL = "sameet6367254@gmail.com";
 const LINKEDIN = "https://linkedin.com/in/your-profile";
 const GITHUB = "https://github.com/SAMEET6367";
 
@@ -14,7 +14,7 @@ const GITHUB = "https://github.com/SAMEET6367";
 // submission gets emailed straight to the address you signed up with —
 // no backend or API key needed. Leave the placeholder in and the form will
 // just show an error instead of silently failing.
-const FORMSPREE_FORM_ID = "your-form-id";
+const FORMSPREE_FORM_ID: string = "maqradvp";
 const FORMSPREE_ENDPOINT = `https://formspree.io/f/${FORMSPREE_FORM_ID}`;
 
 export function Contact() {
