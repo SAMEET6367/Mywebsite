@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Container, SectionHeading } from "@/components/ui/Primitives";
 import { Reveal } from "@/components/ui/Reveal";
 
@@ -6,7 +7,7 @@ type Project = {
   description: string;
   tech: string[];
   href: string;
-  gradient: string;
+  image: string;
 };
 
 const PROJECTS: Project[] = [
@@ -15,16 +16,17 @@ const PROJECTS: Project[] = [
     description:
       "An AI-assisted flyer generator for real estate listings, with drag-and-drop image management and multiple ready-to-export templates.",
     tech: ["Next.js", "TypeScript", "Tailwind CSS"],
-    href: "https://github.com/SAMEET6367/Listing-Card-Generator",
-    gradient: "from-violet/40 to-cyan/30",
+    href: "https://listing-card-generator.vercel.app/",
+    // Drop a screenshot of the app at /public/images/listing-card-generator.png
+    image: "/images/listing-card-generator.png",
   },
-  {
+  /*{
     title: "SaaS Landing Page",
     description:
       "A conversion-focused landing page template for SaaS products — clear pricing, feature breakdown, and a strong above-the-fold pitch.",
     tech: ["Next.js", "Tailwind CSS", "TypeScript"],
     href: "#",
-    gradient: "from-cyan/40 to-violet/20",
+    image: "/images/saas-landing-page.png",
   },
   {
     title: "Business Landing Page",
@@ -32,8 +34,8 @@ const PROJECTS: Project[] = [
       "A clean, modern one-page site built for a local business — fast-loading, mobile-first, and easy for the owner to update.",
     tech: ["React", "Tailwind CSS", "HTML/CSS"],
     href: "#",
-    gradient: "from-violet/30 to-cyan/40",
-  },
+    image: "/images/business-landing-page.png",
+  },*/
 ];
 
 export function FeaturedWork() {
@@ -47,20 +49,12 @@ export function FeaturedWork() {
             description="More projects are in progress — this page itself is one example of the standard I hold my work to."
           />
         </Reveal>
-
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
+        <div className="mt-14 grid gap-6 sm:max-w-xl md:max-w-none md:grid-cols-3">
           {PROJECTS.map((project, i) => (
             <Reveal key={project.title} delay={i * 100}>
-              <a
-                href={project.href}
-                className="group flex h-full flex-col overflow-hidden rounded-xl2 border border-ink-700 bg-ink-900/60 transition-all duration-300 hover:-translate-y-1 hover:border-violet-bright/50 hover:shadow-glow"
-              >
-                <div
-                  className={`flex aspect-[16/10] items-center justify-center bg-gradient-to-br ${project.gradient} bg-ink-800`}
-                >
-                  <span className="font-mono text-xs uppercase tracking-widest text-ink-950/70">
-                    Project preview
-                  </span>
+              <a href={project.href} target="_blank" rel="noreferrer" className="group flex h-full flex-col overflow-hidden rounded-xl2 border border-ink-700 bg-ink-900/60 transition-all duration-300 hover:-translate-y-1 hover:border-violet-bright/50 hover:shadow-glow">
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-ink-800">
+                  <Image src={project.image} alt={`${project.title} preview`} fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <p className="font-display text-lg font-semibold text-paper">
@@ -71,10 +65,7 @@ export function FeaturedWork() {
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {project.tech.map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-full border border-ink-700 px-2.5 py-1 font-mono text-[11px] text-fog"
-                      >
+                      <span key={t} className="rounded-full border border-ink-700 px-2.5 py-1 font-mono text-[11px] text-fog">
                         {t}
                       </span>
                     ))}

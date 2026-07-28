@@ -5,7 +5,7 @@ import { Container, SectionHeading } from "@/components/ui/Primitives";
 import { Reveal } from "@/components/ui/Reveal";
 
 // Placeholders — replace with your real contact details.
-const EMAIL = "sameet6367254@gmail.com";
+const EMAIL = "sameetonline@outlook.com";
 const LINKEDIN = "https://linkedin.com/in/your-profile";
 const GITHUB = "https://github.com/SAMEET6367";
 
