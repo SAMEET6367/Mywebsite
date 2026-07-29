@@ -52,33 +52,33 @@ export function Hero() {
         {/*
           Cutout photo: remove the background from a headshot/half-body
           photo (remove.bg, Photoroom, or Photoshop all work) and export a
-          transparent PNG to /public/images/profile-cutout.png. Portrait
-          orientation, subject filling the frame top-to-bottom, works best —
-          it bleeds off the bottom edge of this section the same way the
-          reference image does. Until that file exists, this shows a dashed
-          placeholder instead of a broken image icon.
+          transparent PNG to /public/images/profile-cutout.png, cropped
+          tight to the body with no margin (bbox-cropped, no baked-in
+          padding). Portrait orientation, subject filling the frame
+          top-to-bottom, works best. Until that file exists, this shows a
+          dashed placeholder instead of a broken image icon.
 
-          NOTE: the wrapper below is overflow-hidden and the image is scaled
-          up + shifted right to close the empty gutter created by transparent
-          padding baked into the source PNG. If you re-export the cutout
-          cropped tight to the body with no margin, you can drop the
-          scale/translate classes and go back to a plain fill.
+          The container below uses aspect-[2558/3498] to match the current
+          cropped photo's exact proportions, at full content width on
+          mobile/tablet, so the photo is as large and gutter-free as the
+          text block above it. On desktop (lg:) it switches to a
+          fixed-height, full-width box so the photo bleeds off the
+          right/bottom edge of the section instead. If you swap in a
+          differently-shaped photo, update the aspect-[] ratio to match.
         */}
         <Reveal delay={150}>
-          <div className="relative mx-auto -mb-1 h-[360px] w-full max-w-sm overflow-hidden sm:h-[440px] lg:mx-0 lg:h-[680px] lg:max-w-none">
+          <div className="relative mx-auto -mb-1 aspect-[2558/3498] w-full overflow-hidden lg:aspect-auto lg:h-[680px] lg:max-w-none">
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 -z-10 rounded-[3rem] bg-hero-glow blur-3xl" />
             {!imgError ? (
-              <div className="absolute inset-0 origin-bottom-right lg:scale-[1.08] lg:translate-x-[6%]">
-                <Image
-                  src="/images/profile-cutout.png"
-                  alt="Sameet Ahmed"
-                  fill
-                  sizes="(min-width: 1024px) 620px, 384px"
-                  className="object-contain object-bottom lg:object-right-bottom"
-                  onError={() => setImgError(true)}
-                  priority
-                />
-              </div>
+              <Image
+                src="/images/profile-cutout.png"
+                alt="Sameet Ahmed"
+                fill
+                sizes="(min-width: 1024px) 620px, 100vw"
+                className="object-contain object-bottom lg:object-right-bottom"
+                onError={() => setImgError(true)}
+                priority
+              />
             ) : (
               <div className="flex h-full items-end justify-center rounded-2xl border border-dashed border-ink-700 bg-ink-900/40 pb-10 text-center text-sm text-fog">
                 Drop a background-removed photo at
