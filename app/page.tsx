@@ -23,8 +23,8 @@ export default function Home() {
       <div className="section-divider" />
       <FeaturedWork />
       <div className="section-divider" />
-      <Testimonials />
-      <div className="section-divider" />
+      {/*<Testimonials />
+      <div className="section-divider" />*/}
       <FAQ />
       <div className="section-divider" />
       <Contact />

@@ -20,9 +20,6 @@ export function Nav() {
     <header className="sticky top-0 z-50 border-b border-ink-700/70 bg-ink-950/80 backdrop-blur-md">
       <Container className="flex h-16 items-center justify-between">
         <a href="#top" className="font-display text-lg font-semibold text-paper">
-          Sameet<span className="text-violet-bright">.</span>
-        </a>
-        <a href="#top" className="font-display text-lg font-semibold text-paper">
           sameetonline@outlook.com<span className="text-violet-bright">.</span>
         </a>
 
