@@ -2,16 +2,19 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { MessageCircle, X, Send, Loader2, Sparkles, RotateCcw } from "lucide-react";
+import { CONTACT_CARD_MARKER } from "@/lib/chatbot-persona";
+import { EMAIL, LINKEDIN, WHATSAPP } from "@/lib/contact-links";
 
 type ChatMessage = {
   role: "user" | "model";
   text: string;
+  showContactCard?: boolean;
 };
 
 const GREETING: ChatMessage = {
   role: "model",
   text:
-    "Hey, I'm the AI version of Sameet 👋 Ask me about my background, the tech behind this site, or what I could build for your project.",
+    "Hey, I'm Sam — Sameet's AI Assistant 👋 Ask me about his background, the tech behind this site, or what he could build for your project.",
 };
 
 // How long to wait before the "talk to me" bubble first appears, and how
@@ -20,6 +23,10 @@ const TOOLTIP_DELAY_MS = 2000;
 const TOOLTIP_AUTOHIDE_MS = 7000;
 const TOOLTIP_DISMISSED_KEY = "sameetai_tooltip_dismissed";
 
+// Chat history persists across refreshes (localStorage, not sessionStorage)
+// so it survives closing/reopening the tab too. Cleared only by "New chat".
+const HISTORY_KEY = "sameetai_chat_history";
+
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
@@ -27,13 +34,55 @@ export function ChatBot() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load any saved conversation once, on mount (client-side only —
+  // localStorage doesn't exist during server rendering).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const saved = window.localStorage.getItem(HISTORY_KEY);
+      if (saved) {
+        const parsed: ChatMessage[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        }
+      }
+    } catch {
+      // Corrupt/unreadable saved state — just fall back to the greeting.
+    } finally {
+      setHasLoadedHistory(true);
+    }
+  }, []);
+
+  // Persist every change so a refresh (or reopening the tab) picks the
+  // conversation back up. Skipped until the initial load above has run,
+  // so we don't overwrite saved history with the default greeting first.
+  useEffect(() => {
+    if (!hasLoadedHistory || typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(HISTORY_KEY, JSON.stringify(messages));
+    } catch {
+      // Storage full or unavailable (e.g. private browsing) — non-fatal.
+    }
+  }, [messages, hasLoadedHistory]);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isOpen, isLoading]);
+
+  // Keep the input focused while the panel is open, so the visitor can
+  // start typing straight away and after each reply — without forcing
+  // focus back if they've deliberately clicked elsewhere on the page.
+  useEffect(() => {
+    if (isOpen && !isLoading) {
+      inputRef.current?.focus();
+    }
+  }, [isOpen, isLoading]);
 
   // Show the attention-grabbing bubble once per visit (unless the visitor
   // already dismissed it earlier), then auto-hide it after a while.
@@ -68,6 +117,9 @@ export function ChatBot() {
     setMessages([GREETING]);
     setInput("");
     setError(null);
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(HISTORY_KEY);
+    }
   }
 
   function handleEndChat() {
@@ -99,11 +151,18 @@ export function ChatBot() {
         return;
       }
 
-      setMessages((prev) => [...prev, { role: "model", text: data.reply }]);
+      const showContactCard: boolean = data.reply.includes(CONTACT_CARD_MARKER);
+      const cleanText: string = data.reply.replaceAll(CONTACT_CARD_MARKER, "").trim();
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "model", text: cleanText, showContactCard },
+      ]);
     } catch {
-      setError("Couldn't reach sameet.ai. Check your connection and try again.");
+      setError("Couldn't reach Sam. Check your connection and try again.");
     } finally {
       setIsLoading(false);
+      inputRef.current?.focus();
     }
   }
 
@@ -113,7 +172,7 @@ export function ChatBot() {
       {showTooltip && !isOpen && (
         <div className="fixed bottom-24 right-6 z-50 flex max-w-[220px] items-start gap-2 rounded-xl2 border border-ink-700 bg-ink-900 px-4 py-3 text-sm text-paper shadow-soft animate-fade-up">
           <p className="leading-snug">
-            💬 Talk to <span className="font-semibold">Sameet&apos;s AI version</span>
+            💬 Talk to <span className="font-semibold">Sam, Sameet&apos;s AI Assistant</span>
           </p>
           <button
             type="button"
@@ -132,7 +191,7 @@ export function ChatBot() {
       <button
         type="button"
         onClick={handleToggle}
-        aria-label={isOpen ? "Close chat" : "Open sameet.ai chat"}
+        aria-label={isOpen ? "Close chat" : "Open chat with Sam"}
         className={`fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-violet to-cyan text-ink-950 shadow-glow transition-transform duration-300 hover:scale-105 ${
           showTooltip && !isOpen ? "animate-pulse" : ""
         }`}
@@ -149,7 +208,9 @@ export function ChatBot() {
               <Sparkles size={16} className="text-ink-950" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-display text-sm font-semibold text-paper">sameet.ai</p>
+              <p className="font-display text-sm font-semibold text-paper">
+                Sam · Sameet&apos;s AI Assistant
+              </p>
               <p className="truncate text-xs text-fog">The AI version of me — ask away</p>
             </div>
             <button
@@ -177,7 +238,7 @@ export function ChatBot() {
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
               >
                 <div
                   className={`max-w-[85%] rounded-lg px-3 py-2 text-sm leading-relaxed ${
@@ -188,6 +249,33 @@ export function ChatBot() {
                 >
                   {m.text}
                 </div>
+
+                {m.showContactCard && (
+                  <div className="mt-2 flex max-w-[85%] flex-wrap gap-2">
+                    <a
+                      href={WHATSAPP}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full border border-ink-700 bg-ink-950 px-3 py-1.5 text-xs text-paper transition-colors hover:border-violet-bright hover:text-violet-bright"
+                    >
+                      WhatsApp
+                    </a>
+                    <a
+                      href={LINKEDIN}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full border border-ink-700 bg-ink-950 px-3 py-1.5 text-xs text-paper transition-colors hover:border-violet-bright hover:text-violet-bright"
+                    >
+                      LinkedIn
+                    </a>
+                    <a
+                      href={`mailto:${EMAIL}`}
+                      className="rounded-full border border-ink-700 bg-ink-950 px-3 py-1.5 text-xs text-paper transition-colors hover:border-violet-bright hover:text-violet-bright"
+                    >
+                      Email
+                    </a>
+                  </div>
+                )}
               </div>
             ))}
 
@@ -213,6 +301,7 @@ export function ChatBot() {
             className="flex items-center gap-2 border-t border-ink-700 bg-ink-950/60 p-3"
           >
             <input
+              ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about a project, my skills, or working together…"
